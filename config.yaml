@@ -1,0 +1,8 @@
+port: 1323
+database:
+  driver: "mongodb" #possible value are mongodb or mysql
+  address: "localhost"
+  port: 27017
+  username: ""
+  password: ""
+  name: "transaction"
