@@ -10,6 +10,8 @@ import (
 	itemDomain "sample-order/domain/item"
 	"time"
 
+	"go.mongodb.org/mongo-driver/mongo/readpref"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
@@ -18,22 +20,30 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func newConfig() {
+type appConfig struct {
+	Port     int `yaml:"port"`
+	Database struct {
+		Driver   string `yaml:"driver"`
+		Name     string `yaml:"name"`
+		Address  string `yaml:"address"`
+		Port     int    `yaml:"port"`
+		Username string `yaml:"username"`
+		Password string `yaml:"password"`
+	}
+}
+
+func initConfig() *appConfig {
+	var defaultConfig appConfig
+	defaultConfig.Port = 1323
+	defaultConfig.Database.Driver = "mongodb"
+	defaultConfig.Database.Name = "transaction"
+	defaultConfig.Database.Address = "localhost"
+	defaultConfig.Database.Port = 27017
+	defaultConfig.Database.Username = ""
+	defaultConfig.Database.Password = ""
+
 	viper.SetConfigFile("config.yaml")
 	viper.AddConfigPath(".")
-
-	database := make(map[string]interface{})
-	database["driver"] = "mongodb"
-	database["address"] = "localhost"
-	database["port"] = 27017
-	database["username"] = ""
-	database["password"] = ""
-	database["name"] = "transaction"
-	viper.SetDefault("database", database)
-
-	server := make(map[string]interface{})
-	server["port"] = 1323
-	viper.SetDefault("port", 1323)
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
@@ -41,20 +51,29 @@ func newConfig() {
 		} else {
 			log.Info("error to load config file, will use default value")
 		}
+
+		return &defaultConfig
 	}
+
+	var finalConfig appConfig
+	err := viper.Unmarshal(&finalConfig)
+	if err != nil {
+		log.Info("failed to extract config, will use default value")
+		return &defaultConfig
+	}
+
+	return &finalConfig
 }
 
-func newMysqlDB() *sql.DB {
+func newMysqlDB(config *appConfig) *sql.DB {
 	var uri string
 
-	database := viper.GetStringMap("database")
-
 	uri = fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?parseTime=true",
-		database["username"],
-		database["password"],
-		database["address"],
-		database["port"],
-		database["name"])
+		config.Database.Username,
+		config.Database.Password,
+		config.Database.Address,
+		config.Database.Port,
+		config.Database.Name)
 
 	db, err := sql.Open("mysql", uri)
 	if err != nil {
@@ -74,19 +93,17 @@ func newMysqlDB() *sql.DB {
 	return db
 }
 
-func newMongoDBClient() *mongo.Client {
+func newMongoDBClient(config *appConfig) *mongo.Client {
 	uri := "mongodb://"
 
-	database := viper.GetStringMap("database")
-
-	if database["username"] != "" {
-		uri = fmt.Sprintf("%s%v:%v@", uri, database["username"], database["password"])
+	if config.Database.Username != "" {
+		uri = fmt.Sprintf("%s%v:%v@", uri, config.Database.Username, config.Database.Password)
 	}
 
 	uri = fmt.Sprintf("%s%v:%v",
 		uri,
-		database["address"],
-		database["port"])
+		config.Database.Address,
+		config.Database.Port)
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(uri))
 	if err != nil {
@@ -94,6 +111,11 @@ func newMongoDBClient() *mongo.Client {
 	}
 
 	err = client.Connect(context.Background())
+	if err != nil {
+		panic(err)
+	}
+
+	err = client.Ping(context.Background(), readpref.Primary())
 	if err != nil {
 		panic(err)
 	}
@@ -129,21 +151,21 @@ func main() {
 	var itemRepo itemDomain.Repository
 
 	//load config if available or set to default
-	newConfig()
+	config := initConfig()
 
-	database := viper.GetStringMap("database")
-
-	if database["driver"].(string) == "mysql" {
+	if config.Database.Driver == "mysql" {
 		//initiate mysql db repository
-		db := newMysqlDB()
+		db := newMysqlDB(config)
 		defer db.Close()
 		itemRepo = itemDomain.NewMySQLRepository(db)
-	} else {
+	} else if config.Database.Driver == "mongodb" {
 		// //initiate mongodb repository
-		client := newMongoDBClient()
+		client := newMongoDBClient(config)
 		defer client.Disconnect(context.Background())
-		db := client.Database(database["name"].(string))
+		db := client.Database(config.Database.Name)
 		itemRepo = itemDomain.NewMongoDBRepository(db)
+	} else {
+		panic("Unsupported database driver")
 	}
 
 	//initiate item service

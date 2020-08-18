@@ -48,5 +48,5 @@ CREATE TABLE `item_tag` (
 # How To Run Server
 Just execute code below in your console
 ```console
-go run server.go
+go run main.go
 ```
