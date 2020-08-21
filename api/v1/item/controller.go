@@ -3,7 +3,7 @@ package item
 import (
 	"net/http"
 	"sample-order/api"
-	"sample-order/domain/item"
+	"sample-order/core/item"
 
 	v10 "github.com/go-playground/validator/v10"
 	"github.com/labstack/echo"

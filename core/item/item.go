@@ -7,10 +7,10 @@ import (
 
 var (
 	//ErrConflict Error when update item that has been modified
-	ErrConflict = errors.New("Item has been modified")
+	ErrConflict = errors.New("Data has been modified")
 
 	//ErrNotFound Error when item is not found
-	ErrNotFound = errors.New("Item was not found")
+	ErrNotFound = errors.New("Data was not found")
 
 	//ErrBadRequest Error when data given is not valid on update or insert
 	ErrBadRequest = errors.New("Given data is not valid")
@@ -35,8 +35,8 @@ type Item struct {
 	Version     int       `bson:"version"`
 }
 
-//Repository ingoing port for item
-type Repository interface {
+//DataRepository ingoing port for item
+type DataRepository interface {
 	//FindItemByID If data not found will return nil without error
 	FindItemByID(ID string) (*Item, error)
 

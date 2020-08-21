@@ -1,7 +1,7 @@
 package item
 
 import (
-	"sample-order/domain/item"
+	"sample-order/core/item"
 )
 
 //CreateItemRequest create item request payload

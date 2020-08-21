@@ -3,7 +3,7 @@ package item
 import (
 	"context"
 
-	itemDomain "sample-order/domain/item"
+	itemCore "sample-order/core/item"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -22,8 +22,8 @@ func NewMongoDBRepository(db *mongo.Database) *MongoDBRepository {
 }
 
 //FindItemByID Find item based on given ID. Its return nil if not found
-func (repo *MongoDBRepository) FindItemByID(ID string) (*itemDomain.Item, error) {
-	var item *itemDomain.Item
+func (repo *MongoDBRepository) FindItemByID(ID string) (*itemCore.Item, error) {
+	var item *itemCore.Item
 
 	filter := bson.M{
 		"_id": ID,
@@ -41,7 +41,7 @@ func (repo *MongoDBRepository) FindItemByID(ID string) (*itemDomain.Item, error)
 }
 
 //FindAllByTag Find all items based on given tag. Its return empty array if not found
-func (repo *MongoDBRepository) FindAllByTag(tag string) ([]*itemDomain.Item, error) {
+func (repo *MongoDBRepository) FindAllByTag(tag string) ([]*itemCore.Item, error) {
 	filter := bson.M{
 		"tags": bson.M{
 			"$all": [1]string{tag},
@@ -55,10 +55,10 @@ func (repo *MongoDBRepository) FindAllByTag(tag string) ([]*itemDomain.Item, err
 
 	defer cursor.Close(context.TODO())
 
-	var items []*itemDomain.Item
+	var items []*itemCore.Item
 
 	for cursor.Next(context.TODO()) {
-		var item itemDomain.Item
+		var item itemCore.Item
 		if err = cursor.Decode(&item); err != nil {
 			return nil, err
 		}
@@ -70,7 +70,7 @@ func (repo *MongoDBRepository) FindAllByTag(tag string) ([]*itemDomain.Item, err
 }
 
 //InsertItem Insert new item into database. Its return item id if success
-func (repo *MongoDBRepository) InsertItem(item itemDomain.Item) error {
+func (repo *MongoDBRepository) InsertItem(item itemCore.Item) error {
 	_, err := repo.col.InsertOne(context.TODO(), item)
 
 	if err != nil {
@@ -81,7 +81,7 @@ func (repo *MongoDBRepository) InsertItem(item itemDomain.Item) error {
 }
 
 //UpdateItem Update existing item in database
-func (repo *MongoDBRepository) UpdateItem(item itemDomain.Item, currentVersion int) error {
+func (repo *MongoDBRepository) UpdateItem(item itemCore.Item, currentVersion int) error {
 	filter := bson.M{
 		"_id":     item.ID,
 		"version": currentVersion,
