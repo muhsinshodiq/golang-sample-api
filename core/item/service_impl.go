@@ -1,10 +1,10 @@
 package item
 
 import (
+	"sample-order/libs"
 	"time"
 
 	validator "github.com/go-playground/validator/v10"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 //ServiceImpl Implementation of service interface
@@ -45,7 +45,7 @@ func (s *ServiceImpl) CreateItem(upsertitemSpec UpsertItemSpec, createdBy string
 		return "", ErrInvalidSpec
 	}
 
-	ID := primitive.NewObjectID().Hex()
+	ID := libs.GenerateID()
 
 	now := time.Now()
 	item := Item{
