@@ -42,7 +42,7 @@ func (s *ServiceImpl) CreateItem(upsertitemSpec UpsertItemSpec, createdBy string
 	err := s.validate.Struct(upsertitemSpec)
 
 	if err != nil {
-		return "", ErrBadRequest
+		return "", ErrInvalidSpec
 	}
 
 	ID := primitive.NewObjectID().Hex()
@@ -74,7 +74,7 @@ func (s *ServiceImpl) UpdateItem(ID string, upsertitemSpec UpsertItemSpec, curre
 	err := s.validate.Struct(upsertitemSpec)
 
 	if err != nil || len(ID) == 0 {
-		return ErrBadRequest
+		return ErrInvalidSpec
 	}
 
 	//get the item first to make sure data is exist
@@ -85,7 +85,7 @@ func (s *ServiceImpl) UpdateItem(ID string, upsertitemSpec UpsertItemSpec, curre
 	} else if item == nil {
 		return ErrNotFound
 	} else if item.Version != currentVersion {
-		return ErrConflict
+		return ErrDataHasBeenModified
 	}
 
 	item.Name = upsertitemSpec.Name

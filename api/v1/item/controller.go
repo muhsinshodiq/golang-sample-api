@@ -71,7 +71,7 @@ func (controller *Controller) createNewItem(c echo.Context) error {
 	ID, err := controller.service.CreateItem(*createItemRequest.ToUpsertItemSpec(), "creator")
 
 	if err != nil {
-		if err == item.ErrBadRequest {
+		if err == item.ErrInvalidSpec {
 			return c.JSON(http.StatusBadRequest, api.NewBadRequestResponse())
 		}
 		return c.JSON(http.StatusInternalServerError, api.NewInternalServerErrorResponse())
@@ -104,7 +104,7 @@ func (controller *Controller) updateItem(c echo.Context) error {
 		if err == item.ErrNotFound {
 			return c.JSON(http.StatusNotFound, api.NewNotFoundResponse())
 		}
-		if err == item.ErrConflict {
+		if err == item.ErrDataHasBeenModified {
 			return c.JSON(http.StatusConflict, api.NewConflictResponse())
 		}
 	}
