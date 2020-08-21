@@ -1,9 +1,9 @@
 # Sample Golang API Server
 Sample REST API build using echo server.
 
-The code was separated into thre sections/categories:
+The code was separated into three sections/categories:
 - Presentation.<br/>API handler/controller that handle all incoming HTTP request and response
-- Domain Logic.<br/>I also calling this as a service and mostly contain all the logic in domain business itself
+- Domain Logic.<br/>I also calling this as a service and mostly contain all the logic in domain business itself (inside core pacakage)
 - Repoistory.<br/>Contain the code to interact with external infrastructure such as database, caching, etc.
 
 # Data initialization
