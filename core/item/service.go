@@ -23,27 +23,27 @@ type Service interface {
 //=============== The implementation of those interface put below =======================
 
 type service struct {
-	repository DataRepository
-	validate   *validator.Validate
+	dataRepository DataRepository
+	validate       *validator.Validate
 }
 
 //NewService Construct item service object
-func NewService(repository DataRepository) Service {
+func NewService(dataRepository DataRepository) Service {
 	return &service{
-		repository,
+		dataRepository,
 		validator.New(),
 	}
 }
 
 //GetItemByID Get item by given ID, return nil if not exist
 func (s *service) GetItemByID(ID string) (*Item, error) {
-	return s.repository.FindItemByID(ID)
+	return s.dataRepository.FindItemByID(ID)
 }
 
 //GetItemsByTag Get all items by given tag, return zero array if not match
 func (s *service) GetItemsByTag(tag string) ([]*Item, error) {
 
-	items, err := s.repository.FindAllByTag(tag)
+	items, err := s.dataRepository.FindAllByTag(tag)
 	if err != nil || items == nil {
 		return []*Item{}, err
 	}
@@ -74,7 +74,7 @@ func (s *service) CreateItem(upsertitemSpec spec.UpsertItemSpec, createdBy strin
 		Version:     1,
 	}
 
-	err = s.repository.InsertItem(item)
+	err = s.dataRepository.InsertItem(item)
 	if err != nil {
 		return "", err
 	}
@@ -92,7 +92,7 @@ func (s *service) UpdateItem(ID string, upsertitemSpec spec.UpsertItemSpec, curr
 	}
 
 	//get the item first to make sure data is exist
-	item, err := s.repository.FindItemByID(ID)
+	item, err := s.dataRepository.FindItemByID(ID)
 
 	if err != nil {
 		return err
@@ -109,5 +109,5 @@ func (s *service) UpdateItem(ID string, upsertitemSpec spec.UpsertItemSpec, curr
 	item.ModifiedAt = time.Now()
 	item.Version = item.Version + 1
 
-	return s.repository.UpdateItem(*item, currentVersion)
+	return s.dataRepository.UpdateItem(*item, currentVersion)
 }

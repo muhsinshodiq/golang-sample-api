@@ -3,6 +3,8 @@ package item
 import (
 	"net/http"
 	"sample-order/api"
+	"sample-order/api/v1/item/request"
+	"sample-order/api/v1/item/response"
 	"sample-order/core"
 	"sample-order/core/item"
 
@@ -44,7 +46,7 @@ func (controller *Controller) getItemByID(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, api.NewNotFoundResponse())
 	}
 
-	response := NewGetItemByIDResponse(item)
+	response := response.NewGetItemByIDResponse(item)
 	return c.JSON(http.StatusOK, response)
 }
 
@@ -57,13 +59,13 @@ func (controller *Controller) findItemByTag(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, api.NewInternalServerErrorResponse())
 	}
 
-	response := NewGetItemByTagResponse(items)
+	response := response.NewGetItemByTagResponse(items)
 	return c.JSON(http.StatusOK, response)
 }
 
 //Create new item
 func (controller *Controller) createNewItem(c echo.Context) error {
-	createItemRequest := new(CreateItemRequest)
+	createItemRequest := new(request.CreateItemRequest)
 
 	if err := c.Bind(createItemRequest); err != nil {
 		return c.JSON(http.StatusBadRequest, api.NewBadRequestResponse())
@@ -78,13 +80,13 @@ func (controller *Controller) createNewItem(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, api.NewInternalServerErrorResponse())
 	}
 
-	response := NewCreateNewItemResponse(ID)
+	response := response.NewCreateNewItemResponse(ID)
 	return c.JSON(http.StatusCreated, response)
 }
 
 //Update existing item
 func (controller *Controller) updateItem(c echo.Context) error {
-	updateItemRequest := new(UpdateItemRequest)
+	updateItemRequest := new(request.UpdateItemRequest)
 
 	if err := c.Bind(updateItemRequest); err != nil {
 		return c.JSON(http.StatusBadRequest, api.NewBadRequestResponse())

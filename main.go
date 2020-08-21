@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/signal"
 	itemAPIV1 "sample-order/api/v1/item"
-	"sample-order/core/item"
 	itemCore "sample-order/core/item"
 	itemRepository "sample-order/repository/item"
 	"time"
@@ -150,28 +149,29 @@ func startServer(e *echo.Echo) {
 }
 
 func main() {
-	var itemRepo itemCore.DataRepository
+	var itemDataRepository itemCore.DataRepository
 
 	//load config if available or set to default
 	config := initConfig()
 
+	//define the data repository
 	if config.Database.Driver == "mysql" {
 		//initiate mysql db repository
 		db := newMysqlDB(config)
 		defer db.Close()
-		itemRepo = itemRepository.NewMySQLRepository(db)
+		itemDataRepository = itemRepository.NewMySQLRepository(db)
 	} else if config.Database.Driver == "mongodb" {
 		// //initiate mongodb repository
 		client := newMongoDBClient(config)
 		defer client.Disconnect(context.Background())
 		db := client.Database(config.Database.Name)
-		itemRepo = itemRepository.NewMongoDBRepository(db)
+		itemDataRepository = itemRepository.NewMongoDBRepository(db)
 	} else {
 		panic("Unsupported database driver")
 	}
 
 	//initiate item service
-	itemService := item.NewService(itemRepo)
+	itemService := itemCore.NewService(itemDataRepository)
 
 	//initiate item controller
 	itemControllerV1 := itemAPIV1.NewController(itemService)
