@@ -2,15 +2,16 @@
 Sample REST API build using echo server.
 
 The code was separated into three sections/categories:
-- Presentation.<br/>API handler/controller that handle all incoming HTTP request and response
-- Domain Logic.<br/>I also calling this as a service and mostly contain all the logic in domain business itself (inside core pacakage)
-- Repoistory.<br/>Contain the code to interact with external infrastructure such as database, caching, etc.
+- **Application**<br/>In this use case, the app will be the API. Therefore, it will contains API handler/controller to process all incoming HTTP request and response.
+- **Core**<br/>Mostly contain all the logic in domain business. I also calling this as a service that will be required by the application. It's also define the interface of all the repository needed.
+- **Repository**<br/>All the real implementation of interfaces defined on the core. Mostly it will contain about the infrastucture implementation such as database, caching, data streaming, etc.
 
 # Data initialization
 
 This example support two databases, there are MySQL and MongoDB.
 
-DB default configuration will be used is MongoDB. If you want to change into MySQL, update the configuration inside `config.yaml` file.
+DB default configuration will be used is MongoDB. If you want to change into MySQL, update the configuration inside 
+[config.yaml](https://raw.githubusercontent.com/muhsinshodiq/golang-sample-api/master/config.yaml) file.
 
 ### MongoDB
 Please execute script below to create a new collection called `items` including the index needed
@@ -18,6 +19,7 @@ Please execute script below to create a new collection called `items` including 
 ```mongodb
 db.createCollection('items');
 db.items.createIndex({"tags": 1});
+db.items.createIndex({"modified_at": 1, "_id": 1});
 ```
 
 ### MySQL
