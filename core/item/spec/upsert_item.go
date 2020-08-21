@@ -4,5 +4,5 @@ package spec
 type UpsertItemSpec struct {
 	Name        string   `validate:"required"`
 	Description string   `validate:"required,min=3"`
-	Tags        []string `validate:"required,min=0"`
+	Tags        []string `validate:"required"`
 }
