@@ -12,9 +12,6 @@ var (
 	//ErrInvalidSpec Error when data given is not valid on update or insert
 	ErrInvalidSpec = errors.New("Given spec is not valid")
 
-	//ErrFailedToCast Error when failed to casting data
-	ErrFailedToCast = errors.New("Failed to cast data")
-
 	//ErrZeroAffected Data not found
 	ErrZeroAffected = errors.New("No record affected")
 )
