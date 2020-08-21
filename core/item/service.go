@@ -3,10 +3,10 @@ package item
 import (
 	"sample-order/core"
 	"sample-order/core/item/spec"
+	"sample-order/libs"
 	"time"
 
 	validator "github.com/go-playground/validator/v10"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 //Service outgoing port for item
@@ -56,10 +56,10 @@ func (s *service) CreateItem(upsertitemSpec spec.UpsertItemSpec, createdBy strin
 	err := s.validate.Struct(upsertitemSpec)
 
 	if err != nil {
-		return "", core.ErrBadRequest
+		return "", core.ErrInvalidSpec
 	}
 
-	ID := primitive.NewObjectID().Hex()
+	ID := libs.GenerateID()
 
 	now := time.Now()
 	item := Item{
@@ -88,7 +88,7 @@ func (s *service) UpdateItem(ID string, upsertitemSpec spec.UpsertItemSpec, curr
 	err := s.validate.Struct(upsertitemSpec)
 
 	if err != nil || len(ID) == 0 {
-		return core.ErrBadRequest
+		return core.ErrInvalidSpec
 	}
 
 	//get the item first to make sure data is exist
@@ -99,7 +99,7 @@ func (s *service) UpdateItem(ID string, upsertitemSpec spec.UpsertItemSpec, curr
 	} else if item == nil {
 		return core.ErrNotFound
 	} else if item.Version != currentVersion {
-		return core.ErrConflict
+		return core.ErrHasBeenModified
 	}
 
 	item.Name = upsertitemSpec.Name
