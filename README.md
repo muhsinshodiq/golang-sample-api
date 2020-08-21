@@ -50,3 +50,12 @@ Just execute code below in your console
 ```console
 go run main.go
 ```
+
+# How To Consume The API
+There are 4 availables API that ready to use:
+- GET `/v1/items/:id`
+- GET `/v1/items/[tag-name]`
+- POST `/v1/items`
+- PUT `/v1/items`
+
+To make it easier please download [Insomnia Core](https://insomnia.rest) app and import [this collection](https://raw.githubusercontent.com/muhsinshodiq/golang-sample-api/master/insomnia.json).
