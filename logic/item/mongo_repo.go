@@ -3,8 +3,9 @@ package item
 import (
 	"context"
 
-	"go.mongodb.org/mongo-driver/bson"
+	itemDomain "sample-order/domain/item"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -21,8 +22,8 @@ func NewMongoDBRepository(db *mongo.Database) *MongoDBRepository {
 }
 
 //FindItemByID Find item based on given ID. Its return nil if not found
-func (repo *MongoDBRepository) FindItemByID(ID string) (*Item, error) {
-	var item *Item
+func (repo *MongoDBRepository) FindItemByID(ID string) (*itemDomain.Item, error) {
+	var item *itemDomain.Item
 
 	filter := bson.M{
 		"_id": ID,
@@ -40,7 +41,7 @@ func (repo *MongoDBRepository) FindItemByID(ID string) (*Item, error) {
 }
 
 //FindAllByTag Find all items based on given tag. Its return empty array if not found
-func (repo *MongoDBRepository) FindAllByTag(tag string) ([]*Item, error) {
+func (repo *MongoDBRepository) FindAllByTag(tag string) ([]*itemDomain.Item, error) {
 	filter := bson.M{
 		"tags": bson.M{
 			"$all": [1]string{tag},
@@ -54,10 +55,10 @@ func (repo *MongoDBRepository) FindAllByTag(tag string) ([]*Item, error) {
 
 	defer cursor.Close(context.TODO())
 
-	var items []*Item
+	var items []*itemDomain.Item
 
 	for cursor.Next(context.TODO()) {
-		var item Item
+		var item itemDomain.Item
 		if err = cursor.Decode(&item); err != nil {
 			return nil, err
 		}
@@ -69,7 +70,7 @@ func (repo *MongoDBRepository) FindAllByTag(tag string) ([]*Item, error) {
 }
 
 //InsertItem Insert new item into database. Its return item id if success
-func (repo *MongoDBRepository) InsertItem(item Item) error {
+func (repo *MongoDBRepository) InsertItem(item itemDomain.Item) error {
 	_, err := repo.col.InsertOne(context.TODO(), item)
 
 	if err != nil {
@@ -80,7 +81,7 @@ func (repo *MongoDBRepository) InsertItem(item Item) error {
 }
 
 //UpdateItem Update existing item in database
-func (repo *MongoDBRepository) UpdateItem(item Item, currentVersion int) error {
+func (repo *MongoDBRepository) UpdateItem(item itemDomain.Item, currentVersion int) error {
 	filter := bson.M{
 		"_id":     item.ID,
 		"version": currentVersion,

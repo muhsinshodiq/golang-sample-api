@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	itemAPIV1 "sample-order/api/v1/item"
 	itemDomain "sample-order/domain/item"
+	itemLogic "sample-order/logic/item"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -157,19 +158,19 @@ func main() {
 		//initiate mysql db repository
 		db := newMysqlDB(config)
 		defer db.Close()
-		itemRepo = itemDomain.NewMySQLRepository(db)
+		itemRepo = itemLogic.NewMySQLRepository(db)
 	} else if config.Database.Driver == "mongodb" {
 		// //initiate mongodb repository
 		client := newMongoDBClient(config)
 		defer client.Disconnect(context.Background())
 		db := client.Database(config.Database.Name)
-		itemRepo = itemDomain.NewMongoDBRepository(db)
+		itemRepo = itemLogic.NewMongoDBRepository(db)
 	} else {
 		panic("Unsupported database driver")
 	}
 
 	//initiate item service
-	itemService := itemDomain.NewServiceImpl(itemRepo)
+	itemService := itemLogic.NewServiceImpl(itemRepo)
 
 	//initiate item controller
 	itemControllerV1 := itemAPIV1.NewController(itemService)

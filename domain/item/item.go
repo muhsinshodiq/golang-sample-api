@@ -24,15 +24,15 @@ var (
 
 //Item product item that available to rent or sell
 type Item struct {
-	ID          string    `db:"id" bson:"_id"`
-	Name        string    `db:"name" bson:"name"`
-	Description string    `db:"description" bson:"description"`
-	Tags        []string  `db:"tags"`
-	CreatedAt   time.Time `db:"created_at" bson:"created_at"`
-	CreatedBy   string    `db:"created_by" bson:"created_by"`
-	ModifiedAt  time.Time `db:"modified_at" bson:"modified_at"`
-	ModifiedBy  string    `db:"modified_by" bson:"modified_by"`
-	Version     int       `db:"version" bson:"version"`
+	ID          string    `bson:"_id"`
+	Name        string    `bson:"name"`
+	Description string    `bson:"description"`
+	Tags        []string  `bson:"tags"`
+	CreatedAt   time.Time `bson:"created_at"`
+	CreatedBy   string    `bson:"created_by"`
+	ModifiedAt  time.Time `bson:"modified_at"`
+	ModifiedBy  string    `bson:"modified_by"`
+	Version     int       `bson:"version"`
 }
 
 //Repository ingoing port for item

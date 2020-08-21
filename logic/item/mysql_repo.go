@@ -3,6 +3,8 @@ package item
 import (
 	"database/sql"
 	"strings"
+
+	itemDomain "sample-order/domain/item"
 )
 
 //MySQLRepository The implementation of item.Repository object
@@ -18,8 +20,8 @@ func NewMySQLRepository(db *sql.DB) *MySQLRepository {
 }
 
 //FindItemByID Find item based on given ID. Its return nil if not found
-func (repo *MySQLRepository) FindItemByID(ID string) (*Item, error) {
-	var item Item
+func (repo *MySQLRepository) FindItemByID(ID string) (*itemDomain.Item, error) {
+	var item itemDomain.Item
 
 	selectQuery := `SELECT id, name, description, created_at, created_by, modified_at, modified_by, version, COALESCE(tags, "")
 		FROM item i
@@ -53,8 +55,8 @@ func (repo *MySQLRepository) FindItemByID(ID string) (*Item, error) {
 }
 
 //FindAllByTag Find all items based on given tag. Its return empty array if not found
-func (repo *MySQLRepository) FindAllByTag(tag string) ([]*Item, error) {
-	var items []*Item
+func (repo *MySQLRepository) FindAllByTag(tag string) ([]*itemDomain.Item, error) {
+	var items []*itemDomain.Item
 
 	//TODO: if feel have a performance issue in tag grouping, move the logic from db to here
 	selectQuery := `SELECT id, name, description, created_at, created_by, modified_at, modified_by, version, COALESCE(tags, "")
@@ -78,7 +80,7 @@ func (repo *MySQLRepository) FindAllByTag(tag string) ([]*Item, error) {
 	defer row.Close()
 
 	for row.Next() {
-		var item Item
+		var item itemDomain.Item
 		var tags string
 
 		err := row.Scan(
@@ -103,7 +105,7 @@ func (repo *MySQLRepository) FindAllByTag(tag string) ([]*Item, error) {
 }
 
 //InsertItem Insert new item into database. Its return item id if success
-func (repo *MySQLRepository) InsertItem(item Item) error {
+func (repo *MySQLRepository) InsertItem(item itemDomain.Item) error {
 	tx, err := repo.db.Begin()
 	if err != nil {
 		return err
@@ -161,7 +163,7 @@ func (repo *MySQLRepository) InsertItem(item Item) error {
 }
 
 //UpdateItem Update existing item in database
-func (repo *MySQLRepository) UpdateItem(item Item, currentVersion int) error {
+func (repo *MySQLRepository) UpdateItem(item itemDomain.Item, currentVersion int) error {
 	tx, err := repo.db.Begin()
 	if err != nil {
 		return err
@@ -200,7 +202,7 @@ func (repo *MySQLRepository) UpdateItem(item Item, currentVersion int) error {
 
 	if affected == 0 {
 		tx.Rollback()
-		return ErrZeroAffected
+		return itemDomain.ErrZeroAffected
 	}
 
 	//TODO: maybe better if we only delete the record that we need to delete
