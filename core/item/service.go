@@ -1,33 +1,47 @@
 package item
 
 import (
+	"sample-order/core"
+	"sample-order/core/item/spec"
 	"time"
 
 	validator "github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-//ServiceImpl Implementation of service interface
-type ServiceImpl struct {
+//Service outgoing port for item
+type Service interface {
+	GetItemByID(ID string) (*Item, error)
+
+	GetItemsByTag(tag string) ([]*Item, error)
+
+	CreateItem(upsertitemSpec spec.UpsertItemSpec, createdBy string) (string, error)
+
+	UpdateItem(ID string, upsertitemSpec spec.UpsertItemSpec, currentVersion int, modifiedBy string) error
+}
+
+//=============== The implementation of those interface put below =======================
+
+type service struct {
 	repository DataRepository
 	validate   *validator.Validate
 }
 
-//NewServiceImpl Construct item service object
-func NewServiceImpl(repository DataRepository) *ServiceImpl {
-	return &ServiceImpl{
+//NewService Construct item service object
+func NewService(repository DataRepository) Service {
+	return &service{
 		repository,
 		validator.New(),
 	}
 }
 
 //GetItemByID Get item by given ID, return nil if not exist
-func (s *ServiceImpl) GetItemByID(ID string) (*Item, error) {
+func (s *service) GetItemByID(ID string) (*Item, error) {
 	return s.repository.FindItemByID(ID)
 }
 
 //GetItemsByTag Get all items by given tag, return zero array if not match
-func (s *ServiceImpl) GetItemsByTag(tag string) ([]*Item, error) {
+func (s *service) GetItemsByTag(tag string) ([]*Item, error) {
 
 	items, err := s.repository.FindAllByTag(tag)
 	if err != nil || items == nil {
@@ -38,11 +52,11 @@ func (s *ServiceImpl) GetItemsByTag(tag string) ([]*Item, error) {
 }
 
 //CreateItem Create new item and store into database
-func (s *ServiceImpl) CreateItem(upsertitemSpec UpsertItemSpec, createdBy string) (string, error) {
+func (s *service) CreateItem(upsertitemSpec spec.UpsertItemSpec, createdBy string) (string, error) {
 	err := s.validate.Struct(upsertitemSpec)
 
 	if err != nil {
-		return "", ErrBadRequest
+		return "", core.ErrBadRequest
 	}
 
 	ID := primitive.NewObjectID().Hex()
@@ -70,11 +84,11 @@ func (s *ServiceImpl) CreateItem(upsertitemSpec UpsertItemSpec, createdBy string
 
 //UpdateItem Update existing item in the database.
 //Will return ErrNotFound when item is not exists or ErrConflict if data version is not match
-func (s *ServiceImpl) UpdateItem(ID string, upsertitemSpec UpsertItemSpec, currentVersion int, modifiedBy string) error {
+func (s *service) UpdateItem(ID string, upsertitemSpec spec.UpsertItemSpec, currentVersion int, modifiedBy string) error {
 	err := s.validate.Struct(upsertitemSpec)
 
 	if err != nil || len(ID) == 0 {
-		return ErrBadRequest
+		return core.ErrBadRequest
 	}
 
 	//get the item first to make sure data is exist
@@ -83,9 +97,9 @@ func (s *ServiceImpl) UpdateItem(ID string, upsertitemSpec UpsertItemSpec, curre
 	if err != nil {
 		return err
 	} else if item == nil {
-		return ErrNotFound
+		return core.ErrNotFound
 	} else if item.Version != currentVersion {
-		return ErrConflict
+		return core.ErrConflict
 	}
 
 	item.Name = upsertitemSpec.Name

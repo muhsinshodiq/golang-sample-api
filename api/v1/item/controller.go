@@ -3,6 +3,7 @@ package item
 import (
 	"net/http"
 	"sample-order/api"
+	"sample-order/core"
 	"sample-order/core/item"
 
 	v10 "github.com/go-playground/validator/v10"
@@ -71,7 +72,7 @@ func (controller *Controller) createNewItem(c echo.Context) error {
 	ID, err := controller.service.CreateItem(*createItemRequest.ToUpsertItemSpec(), "creator")
 
 	if err != nil {
-		if err == item.ErrBadRequest {
+		if err == core.ErrBadRequest {
 			return c.JSON(http.StatusBadRequest, api.NewBadRequestResponse())
 		}
 		return c.JSON(http.StatusInternalServerError, api.NewInternalServerErrorResponse())
@@ -101,10 +102,10 @@ func (controller *Controller) updateItem(c echo.Context) error {
 		"updater")
 
 	if err != nil {
-		if err == item.ErrNotFound {
+		if err == core.ErrNotFound {
 			return c.JSON(http.StatusNotFound, api.NewNotFoundResponse())
 		}
-		if err == item.ErrConflict {
+		if err == core.ErrConflict {
 			return c.JSON(http.StatusConflict, api.NewConflictResponse())
 		}
 	}

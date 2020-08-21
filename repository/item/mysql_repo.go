@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"strings"
 
+	"sample-order/core"
 	itemCore "sample-order/core/item"
 )
 
@@ -202,7 +203,7 @@ func (repo *MySQLRepository) UpdateItem(item itemCore.Item, currentVersion int) 
 
 	if affected == 0 {
 		tx.Rollback()
-		return itemCore.ErrZeroAffected
+		return core.ErrZeroAffected
 	}
 
 	//TODO: maybe better if we only delete the record that we need to delete

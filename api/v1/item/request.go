@@ -1,7 +1,7 @@
 package item
 
 import (
-	"sample-order/core/item"
+	"sample-order/core/item/spec"
 )
 
 //CreateItemRequest create item request payload
@@ -12,8 +12,8 @@ type CreateItemRequest struct {
 }
 
 //ToUpsertItemSpec convert into item.UpsertItemSpec object
-func (req *CreateItemRequest) ToUpsertItemSpec() *item.UpsertItemSpec {
-	var upsertItemSpec item.UpsertItemSpec
+func (req *CreateItemRequest) ToUpsertItemSpec() *spec.UpsertItemSpec {
+	var upsertItemSpec spec.UpsertItemSpec
 	upsertItemSpec.Name = req.Name
 	upsertItemSpec.Description = req.Description
 	upsertItemSpec.Tags = req.Tags
@@ -30,8 +30,8 @@ type UpdateItemRequest struct {
 }
 
 //ToUpsertItemSpec convert into item.UpsertItemSpec object
-func (req *UpdateItemRequest) ToUpsertItemSpec() *item.UpsertItemSpec {
-	var upsertItemSpec item.UpsertItemSpec
+func (req *UpdateItemRequest) ToUpsertItemSpec() *spec.UpsertItemSpec {
+	var upsertItemSpec spec.UpsertItemSpec
 	upsertItemSpec.Name = req.Name
 	upsertItemSpec.Description = req.Description
 	upsertItemSpec.Tags = req.Tags
