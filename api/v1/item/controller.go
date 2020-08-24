@@ -53,7 +53,7 @@ func (controller *Controller) FindItemByTag(c echo.Context) error {
 
 //CreateNewItem Create new item echo handler
 func (controller *Controller) CreateNewItem(c echo.Context) error {
-	createItemRequest := new(request.CreateItemRequest)
+	createItemRequest := new(CreateItemRequest)
 
 	if err := c.Bind(createItemRequest); err != nil {
 		return c.JSON(http.StatusBadRequest, api.NewBadRequestResponse())
@@ -74,7 +74,7 @@ func (controller *Controller) CreateNewItem(c echo.Context) error {
 
 //UpdateItem update item echo handler
 func (controller *Controller) UpdateItem(c echo.Context) error {
-	updateItemRequest := new(request.UpdateItemRequest)
+	updateItemRequest := new(UpdateItemRequest)
 
 	if err := c.Bind(updateItemRequest); err != nil {
 		return c.JSON(http.StatusBadRequest, api.NewBadRequestResponse())

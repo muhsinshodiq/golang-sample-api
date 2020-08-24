@@ -59,7 +59,7 @@ func main() {
 	}
 
 	//initiate item service
-	itemService := itemCore.NewService(itemDataRepo)
+	itemService := itemCore.NewServiceImpl(itemDataRepo)
 
 	//initiate item controller
 	itemControllerV1 := item.NewController(itemService)
