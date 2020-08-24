@@ -8,6 +8,10 @@ import (
 
 //RegisterVIPath Registera V1 API path
 func RegisterVIPath(e *echo.Echo, itemController *item.Controller) {
+	if itemController == nil {
+		panic("item controller cannot be nil")
+	}
+
 	e.GET("/v1/items/:id", itemController.GetItemByID)
 	e.GET("/v1/items/tag/:tag", itemController.FindItemByTag)
 
