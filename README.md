@@ -50,7 +50,7 @@ CREATE TABLE `item_tag` (
 # How To Run Server
 Just execute code below in your console
 ```console
-go run main.go
+go run app/server/main.go
 ```
 
 # How To Consume The API

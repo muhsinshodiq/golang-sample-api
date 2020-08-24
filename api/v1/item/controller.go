@@ -19,24 +19,15 @@ type Controller struct {
 }
 
 //NewController Construct item API controller
-func NewController(service item.Service) Controller {
-	return Controller{
+func NewController(service item.Service) *Controller {
+	return &Controller{
 		service,
 		v10.New(),
 	}
 }
 
-//RegisterPath Register item controller path
-func (controller *Controller) RegisterPath(e *echo.Echo) {
-	e.GET("/v1/items/:id", controller.getItemByID)
-	e.GET("/v1/items/tag/:tag", controller.findItemByTag)
-
-	e.POST("/v1/items", controller.createNewItem)
-	e.PUT("/v1/items/:id", controller.updateItem)
-}
-
-//Get item by id
-func (controller *Controller) getItemByID(c echo.Context) error {
+//GetItemByID Get item by ID echo handler
+func (controller *Controller) GetItemByID(c echo.Context) error {
 	ID := c.Param("id")
 	item, err := controller.service.GetItemByID(ID)
 
@@ -50,8 +41,8 @@ func (controller *Controller) getItemByID(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
-//Find items by tag
-func (controller *Controller) findItemByTag(c echo.Context) error {
+//FindItemByTag Find item by tag echo handler
+func (controller *Controller) FindItemByTag(c echo.Context) error {
 	tag := c.Param("tag")
 	items, err := controller.service.GetItemsByTag(tag)
 
@@ -63,8 +54,8 @@ func (controller *Controller) findItemByTag(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
-//Create new item
-func (controller *Controller) createNewItem(c echo.Context) error {
+//CreateNewItem Create new item echo handler
+func (controller *Controller) CreateNewItem(c echo.Context) error {
 	createItemRequest := new(request.CreateItemRequest)
 
 	if err := c.Bind(createItemRequest); err != nil {
@@ -84,8 +75,8 @@ func (controller *Controller) createNewItem(c echo.Context) error {
 	return c.JSON(http.StatusCreated, response)
 }
 
-//Update existing item
-func (controller *Controller) updateItem(c echo.Context) error {
+//UpdateItem update item echo handler
+func (controller *Controller) UpdateItem(c echo.Context) error {
 	updateItemRequest := new(request.UpdateItemRequest)
 
 	if err := c.Bind(updateItemRequest); err != nil {
