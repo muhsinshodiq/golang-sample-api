@@ -6,8 +6,11 @@ import (
 	"os"
 	"os/signal"
 	v1 "sample-order/api/v1"
+	itemControllerV1 "sample-order/api/v1/item"
 	"sample-order/config"
+	itemCore "sample-order/core/item"
 	"sample-order/libs"
+	itemRepo "sample-order/repository/item"
 	"time"
 
 	"github.com/labstack/echo"
@@ -20,8 +23,14 @@ func main() {
 	//load config if available or set to default
 	dbCon := libs.NewDatabaseConnection(config)
 
+	//initiate item repository
+	dataRepository := itemRepo.DataRepositoryFactory(dbCon)
+
+	//initiate item service
+	serviceImpl := itemCore.NewServiceImpl(dataRepository)
+
 	//initiate item controller
-	itemControllerV1 := InitializeItemControllerV1(dbCon)
+	itemControllerV1 := itemControllerV1.NewController(serviceImpl)
 
 	//create echo http
 	e := echo.New()
