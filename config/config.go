@@ -45,16 +45,12 @@ func initConfig() *AppConfig {
 	defaultConfig.Database.Username = ""
 	defaultConfig.Database.Password = ""
 
-	viper.SetConfigFile("config.yaml")
-	viper.AddConfigPath(".")
+	viper.SetConfigType("yaml")
+	viper.SetConfigName("config")
+	viper.AddConfigPath("./config/")
 
 	if err := viper.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			log.Info("config file not found, will use default value")
-		} else {
-			log.Info("error to load config file, will use default value")
-		}
-
+		log.Info("error to load config file, will use default value ", err)
 		return &defaultConfig
 	}
 

@@ -11,7 +11,7 @@ The code implementation was inspired by port and adapter pattern or known as [he
 To describe about how port and adapter interaction (separation concerned), this example will have two databases supported. There are MySQL and MongoDB.
 
 MongoDB will become a default databaese in this example. If you want to change into MySQL, update the configuration inside 
-[config.yaml](https://raw.githubusercontent.com/muhsinshodiq/golang-sample-api/master/config.yaml) file.
+[config.yaml](https://raw.githubusercontent.com/muhsinshodiq/golang-sample-api/master/config/config.yaml) file.
 
 ### MongoDB
 Please execute script below to create a new collection called `items` including the index needed
