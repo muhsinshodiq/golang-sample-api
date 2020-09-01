@@ -1,16 +1,17 @@
 package request
 
-import "sample-order/core/item/spec"
+import "sample-order/business/item/spec"
 
-//CreateItemRequest create item request payload
-type CreateItemRequest struct {
+//UpdateItemRequest update item request payload
+type UpdateItemRequest struct {
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
 	Tags        []string `json:"tags"`
+	Version     int      `json:"version" validate:"required"`
 }
 
 //ToUpsertItemSpec convert into item.UpsertItemSpec object
-func (req *CreateItemRequest) ToUpsertItemSpec() *spec.UpsertItemSpec {
+func (req *UpdateItemRequest) ToUpsertItemSpec() *spec.UpsertItemSpec {
 	var upsertItemSpec spec.UpsertItemSpec
 	upsertItemSpec.Name = req.Name
 	upsertItemSpec.Description = req.Description

@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	v1 "sample-order/api/v1"
-	itemControllerV1 "sample-order/api/v1/item"
+	businessItem "sample-order/business/item"
 	"sample-order/config"
-	itemCore "sample-order/core/item"
-	"sample-order/libs"
-	itemRepo "sample-order/repository/item"
+	api "sample-order/modules/api"
+	itemControllerV1 "sample-order/modules/api/v1/item"
+	itemRepo "sample-order/modules/repository/item"
+	"sample-order/util"
 	"time"
 
 	"github.com/labstack/echo"
@@ -21,13 +21,13 @@ func main() {
 	config := config.GetConfig()
 
 	//load config if available or set to default
-	dbCon := libs.NewDatabaseConnection(config)
+	dbCon := util.NewDatabaseConnection(config)
 
 	//initiate item repository
-	itemDataRepository := itemRepo.DataRepositoryFactory(dbCon)
+	itemRepo := itemRepo.RepositoryFactory(dbCon)
 
 	//initiate item service
-	itemService := itemCore.NewService(itemDataRepository)
+	itemService := businessItem.NewService(itemRepo)
 
 	//initiate item controller
 	itemControllerV1 := itemControllerV1.NewController(itemService)
@@ -35,8 +35,8 @@ func main() {
 	//create echo http
 	e := echo.New()
 
-	//register v1 API handler
-	v1.RegisterVIPath(e, itemControllerV1)
+	//register API path and handler
+	api.RegisterPath(e, itemControllerV1)
 
 	// run server
 	go func() {

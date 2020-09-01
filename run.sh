@@ -1,1 +1,1 @@
-go run product/app/main.go
+go run app/server/main.go

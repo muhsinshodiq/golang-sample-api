@@ -40,7 +40,7 @@ func newCollection(item item.Item) *collection {
 	}
 }
 
-func (col *collection) ToItem() *item.Item {
+func (col *collection) ToItem() item.Item {
 	var item item.Item
 	item.ID = col.ID
 	item.Name = col.Name
@@ -52,7 +52,7 @@ func (col *collection) ToItem() *item.Item {
 	item.ModifiedBy = col.ModifiedBy
 	item.Version = col.Version
 
-	return &item
+	return item
 }
 
 //NewMongoDBRepository Generate mongo DB item repository
@@ -78,11 +78,12 @@ func (repo *MongoDBRepository) FindItemByID(ID string) (*item.Item, error) {
 		return nil, err
 	}
 
-	return col.ToItem(), nil
+	item := col.ToItem()
+	return &item, nil
 }
 
 //FindAllByTag Find all items based on given tag. Its return empty array if not found
-func (repo *MongoDBRepository) FindAllByTag(tag string) ([]*item.Item, error) {
+func (repo *MongoDBRepository) FindAllByTag(tag string) ([]item.Item, error) {
 	filter := bson.M{
 		"tags": bson.M{
 			"$all": [1]string{tag},
@@ -96,7 +97,7 @@ func (repo *MongoDBRepository) FindAllByTag(tag string) ([]*item.Item, error) {
 
 	defer cursor.Close(context.TODO())
 
-	var items []*item.Item
+	var items []item.Item
 
 	for cursor.Next(context.TODO()) {
 		var col collection

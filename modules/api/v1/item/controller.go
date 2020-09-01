@@ -2,11 +2,11 @@ package item
 
 import (
 	"net/http"
-	"sample-order/api"
-	"sample-order/api/v1/item/request"
-	"sample-order/api/v1/item/response"
-	"sample-order/core"
-	"sample-order/core/item"
+	"sample-order/business"
+	itemBusiness "sample-order/business/item"
+	"sample-order/modules/api/util"
+	"sample-order/modules/api/v1/item/request"
+	"sample-order/modules/api/v1/item/response"
 
 	v10 "github.com/go-playground/validator/v10"
 	"github.com/labstack/echo"
@@ -14,12 +14,12 @@ import (
 
 //Controller Get item API controller
 type Controller struct {
-	service   item.Service
+	service   itemBusiness.Service
 	validator *v10.Validate
 }
 
 //NewController Construct item API controller
-func NewController(service item.Service) *Controller {
+func NewController(service itemBusiness.Service) *Controller {
 	return &Controller{
 		service,
 		v10.New(),
@@ -32,12 +32,12 @@ func (controller *Controller) GetItemByID(c echo.Context) error {
 	item, err := controller.service.GetItemByID(ID)
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, api.NewInternalServerErrorResponse())
+		return c.JSON(http.StatusInternalServerError, util.NewInternalServerErrorResponse())
 	} else if item == nil {
-		return c.JSON(http.StatusNotFound, api.NewNotFoundResponse())
+		return c.JSON(http.StatusNotFound, util.NewNotFoundResponse())
 	}
 
-	response := response.NewGetItemByIDResponse(item)
+	response := response.NewGetItemByIDResponse(*item)
 	return c.JSON(http.StatusOK, response)
 }
 
@@ -47,7 +47,7 @@ func (controller *Controller) FindItemByTag(c echo.Context) error {
 	items, err := controller.service.GetItemsByTag(tag)
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, api.NewInternalServerErrorResponse())
+		return c.JSON(http.StatusInternalServerError, util.NewInternalServerErrorResponse())
 	}
 
 	response := response.NewGetItemByTagResponse(items)
@@ -59,16 +59,16 @@ func (controller *Controller) CreateNewItem(c echo.Context) error {
 	createItemRequest := new(request.CreateItemRequest)
 
 	if err := c.Bind(createItemRequest); err != nil {
-		return c.JSON(http.StatusBadRequest, api.NewBadRequestResponse())
+		return c.JSON(http.StatusBadRequest, util.NewBadRequestResponse())
 	}
 
 	ID, err := controller.service.CreateItem(*createItemRequest.ToUpsertItemSpec(), "creator")
 
 	if err != nil {
-		if err == core.ErrInvalidSpec {
-			return c.JSON(http.StatusBadRequest, api.NewBadRequestResponse())
+		if err == business.ErrInvalidSpec {
+			return c.JSON(http.StatusBadRequest, util.NewBadRequestResponse())
 		}
-		return c.JSON(http.StatusInternalServerError, api.NewInternalServerErrorResponse())
+		return c.JSON(http.StatusInternalServerError, util.NewInternalServerErrorResponse())
 	}
 
 	response := response.NewCreateNewItemResponse(ID)
@@ -80,12 +80,12 @@ func (controller *Controller) UpdateItem(c echo.Context) error {
 	updateItemRequest := new(request.UpdateItemRequest)
 
 	if err := c.Bind(updateItemRequest); err != nil {
-		return c.JSON(http.StatusBadRequest, api.NewBadRequestResponse())
+		return c.JSON(http.StatusBadRequest, util.NewBadRequestResponse())
 	}
 
 	err := controller.validator.Struct(updateItemRequest)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, api.NewBadRequestResponse())
+		return c.JSON(http.StatusBadRequest, util.NewBadRequestResponse())
 	}
 
 	err = controller.service.UpdateItem(
@@ -95,11 +95,11 @@ func (controller *Controller) UpdateItem(c echo.Context) error {
 		"updater")
 
 	if err != nil {
-		if err == core.ErrNotFound {
-			return c.JSON(http.StatusNotFound, api.NewNotFoundResponse())
+		if err == business.ErrNotFound {
+			return c.JSON(http.StatusNotFound, util.NewNotFoundResponse())
 		}
-		if err == core.ErrHasBeenModified {
-			return c.JSON(http.StatusConflict, api.NewConflictResponse())
+		if err == business.ErrHasBeenModified {
+			return c.JSON(http.StatusConflict, util.NewConflictResponse())
 		}
 	}
 

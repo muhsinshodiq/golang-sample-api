@@ -8,7 +8,7 @@ type GetItemByTagResponse struct {
 }
 
 //NewGetItemByTagResponse construct GetItemByTagResponse
-func NewGetItemByTagResponse(items []*item.Item) *GetItemByTagResponse {
+func NewGetItemByTagResponse(items []item.Item) *GetItemByTagResponse {
 	var itemResponses []*GetItemByIDResponse
 	itemResponses = make([]*GetItemByIDResponse, 0)
 

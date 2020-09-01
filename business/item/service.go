@@ -1,19 +1,19 @@
 package item
 
 import (
-	"sample-order/core"
-	"sample-order/core/item/spec"
-	"sample-order/libs"
-	"time"
+	"sample-order/business"
+	"sample-order/business/item/spec"
+	core "sample-order/core/item"
+	"sample-order/util"
 
 	validator "github.com/go-playground/validator/v10"
 )
 
 //Service outgoing port for item
 type Service interface {
-	GetItemByID(ID string) (*Item, error)
+	GetItemByID(ID string) (*core.Item, error)
 
-	GetItemsByTag(tag string) ([]*Item, error)
+	GetItemsByTag(tag string) ([]core.Item, error)
 
 	CreateItem(upsertitemSpec spec.UpsertItemSpec, createdBy string) (string, error)
 
@@ -23,29 +23,29 @@ type Service interface {
 //=============== The implementation of those interface put below =======================
 
 type service struct {
-	dataRepository DataRepository
-	validate       *validator.Validate
+	repository Repository
+	validate   *validator.Validate
 }
 
 //NewService Construct item service object
-func NewService(dataRepository DataRepository) Service {
+func NewService(repository Repository) Service {
 	return &service{
-		dataRepository,
+		repository,
 		validator.New(),
 	}
 }
 
 //GetItemByID Get item by given ID, return nil if not exist
-func (s *service) GetItemByID(ID string) (*Item, error) {
-	return s.dataRepository.FindItemByID(ID)
+func (s *service) GetItemByID(ID string) (*core.Item, error) {
+	return s.repository.FindItemByID(ID)
 }
 
 //GetItemsByTag Get all items by given tag, return zero array if not match
-func (s *service) GetItemsByTag(tag string) ([]*Item, error) {
+func (s *service) GetItemsByTag(tag string) ([]core.Item, error) {
 
-	items, err := s.dataRepository.FindAllByTag(tag)
+	items, err := s.repository.FindAllByTag(tag)
 	if err != nil || items == nil {
-		return []*Item{}, err
+		return []core.Item{}, err
 	}
 
 	return items, err
@@ -56,25 +56,19 @@ func (s *service) CreateItem(upsertitemSpec spec.UpsertItemSpec, createdBy strin
 	err := s.validate.Struct(upsertitemSpec)
 
 	if err != nil {
-		return "", core.ErrInvalidSpec
+		return "", business.ErrInvalidSpec
 	}
 
-	ID := libs.GenerateID()
+	ID := util.GenerateID()
+	item := core.CreateItem(
+		ID,
+		upsertitemSpec.Name,
+		upsertitemSpec.Description,
+		upsertitemSpec.Tags,
+		createdBy,
+	)
 
-	now := time.Now()
-	item := Item{
-		ID:          ID,
-		Name:        upsertitemSpec.Name,
-		Description: upsertitemSpec.Description,
-		Tags:        upsertitemSpec.Tags,
-		CreatedAt:   now,
-		CreatedBy:   createdBy,
-		ModifiedAt:  now,
-		ModifiedBy:  createdBy,
-		Version:     1,
-	}
-
-	err = s.dataRepository.InsertItem(item)
+	err = s.repository.InsertItem(item)
 	if err != nil {
 		return "", err
 	}
@@ -88,26 +82,21 @@ func (s *service) UpdateItem(ID string, upsertitemSpec spec.UpsertItemSpec, curr
 	err := s.validate.Struct(upsertitemSpec)
 
 	if err != nil || len(ID) == 0 {
-		return core.ErrInvalidSpec
+		return business.ErrInvalidSpec
 	}
 
 	//get the item first to make sure data is exist
-	item, err := s.dataRepository.FindItemByID(ID)
+	item, err := s.repository.FindItemByID(ID)
 
 	if err != nil {
 		return err
 	} else if item == nil {
-		return core.ErrNotFound
+		return business.ErrNotFound
 	} else if item.Version != currentVersion {
-		return core.ErrHasBeenModified
+		return business.ErrHasBeenModified
 	}
 
-	item.Name = upsertitemSpec.Name
-	item.Description = upsertitemSpec.Description
-	item.Tags = upsertitemSpec.Tags
-	item.ModifiedBy = modifiedBy
-	item.ModifiedAt = time.Now()
-	item.Version = item.Version + 1
+	newItem := core.ModifyItem(*item, upsertitemSpec.Name, upsertitemSpec.Description, upsertitemSpec.Tags, modifiedBy)
 
-	return s.dataRepository.UpdateItem(*item, currentVersion)
+	return s.repository.UpdateItem(newItem, currentVersion)
 }

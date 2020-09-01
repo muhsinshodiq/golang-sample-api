@@ -16,7 +16,7 @@ type GetItemByIDResponse struct {
 }
 
 //NewGetItemByIDResponse construct GetItemByIDResponse
-func NewGetItemByIDResponse(item *item.Item) *GetItemByIDResponse {
+func NewGetItemByIDResponse(item item.Item) *GetItemByIDResponse {
 	var itemResponse GetItemByIDResponse
 	itemResponse.ID = item.ID
 	itemResponse.Name = item.Name
