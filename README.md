@@ -1,16 +1,16 @@
 # Sample Golang API Server
 Sample REST API build using echo server.
 
-The code was separated into three sections/categories:
-- **Application**<br/>In this use case, the app will be the API. Therefore, it will contains API handler/controller to process all incoming HTTP request and response.
-- **Core**<br/>Mostly contain all the logic in domain business. I also calling this as a service that will be required by the application. It's also define the interface of all the repository needed.
-- **Repository**<br/>All the real implementation of interfaces defined on the core. Mostly it will contain about the infrastucture implementation such as database, caching, data streaming, etc.
+The code implementation was inspired by port and adapter pattern or known as [hexagonal pattern](blog.octo.com/en/hexagonal-architecture-three-principles-and-an-implementation-example):
+- **Business**<br/>Contains all the logic in domain business. Also called this as a service. All the interface of all the repository needed and the service itself will be put here.
+- **Core**<br/>Contains model/entity and all pure function helper relate to this will
+- **Modules**<br/>Contains implementation of interfaces that defined at the business (also called as adapters in hexagonal's term) and also http handler (controller).
 
 # Data initialization
 
-This example support two databases, there are MySQL and MongoDB.
+To describe about how port and adapter interaction (separation concerned), this example will have two databases supported. There are MySQL and MongoDB.
 
-DB default configuration will be used is MongoDB. If you want to change into MySQL, update the configuration inside 
+MongoDB will become a default databaese in this example. If you want to change into MySQL, update the configuration inside 
 [config.yaml](https://raw.githubusercontent.com/muhsinshodiq/golang-sample-api/master/config.yaml) file.
 
 ### MongoDB

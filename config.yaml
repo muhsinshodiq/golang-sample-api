@@ -1,7 +1,7 @@
 port: 1323
 database:
   driver: "mongodb" #possible value are mongodb or mysql
-  address: "localhost"
+  address: "127.0.0.1"
   port: 27017
   username: ""
   password: ""

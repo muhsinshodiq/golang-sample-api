@@ -1,4 +1,4 @@
-package libs
+package util
 
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
