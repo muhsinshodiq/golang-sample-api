@@ -1,7 +1,7 @@
 # Sample Golang API Server
 Sample REST API build using echo server.
 
-The code implementation was inspired by port and adapter pattern or known as [hexagonal pattern](blog.octo.com/en/hexagonal-architecture-three-principles-and-an-implementation-example):
+The code implementation was inspired by port and adapter pattern or known as [hexagonal](blog.octo.com/en/hexagonal-architecture-three-principles-and-an-implementation-example):
 - **Business**<br/>Contains all the logic in domain business. Also called this as a service. All the interface of all the repository needed and the service itself will be put here.
 - **Core**<br/>Contains model/entity and all pure function helper relate to this will
 - **Modules**<br/>Contains implementation of interfaces that defined at the business (also called as adapters in hexagonal's term) and also http handler (controller).
