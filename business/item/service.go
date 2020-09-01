@@ -60,7 +60,7 @@ func (s *service) CreateItem(upsertitemSpec spec.UpsertItemSpec, createdBy strin
 	}
 
 	ID := util.GenerateID()
-	item := core.CreateItem(
+	item := core.NewItem(
 		ID,
 		upsertitemSpec.Name,
 		upsertitemSpec.Description,
@@ -96,7 +96,7 @@ func (s *service) UpdateItem(ID string, upsertitemSpec spec.UpsertItemSpec, curr
 		return business.ErrHasBeenModified
 	}
 
-	newItem := core.ModifyItem(*item, upsertitemSpec.Name, upsertitemSpec.Description, upsertitemSpec.Tags, modifiedBy)
+	newItem := item.ModifyItem(upsertitemSpec.Name, upsertitemSpec.Description, upsertitemSpec.Tags, modifiedBy)
 
 	return s.repository.UpdateItem(newItem, currentVersion)
 }

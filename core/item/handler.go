@@ -2,8 +2,8 @@ package item
 
 import "time"
 
-//CreateItem create new item
-func CreateItem(
+//NewItem create new item
+func NewItem(
 	id string,
 	name string,
 	description string,
@@ -26,13 +26,7 @@ func CreateItem(
 }
 
 //ModifyItem update existing item data
-func ModifyItem(
-	oldItem Item,
-	newName string,
-	newDescription string,
-	newTags []string,
-	updater string) Item {
-
+func (oldItem *Item) ModifyItem(newName string, newDescription string, newTags []string, updater string) Item {
 	timeNow := time.Now()
 
 	return Item{
