@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"sample-order/business"
 	itemBusiness "sample-order/business/item"
-	"sample-order/modules/api/util"
+	"sample-order/modules/api/common"
 	"sample-order/modules/api/v1/item/request"
 	"sample-order/modules/api/v1/item/response"
 
@@ -32,9 +32,9 @@ func (controller *Controller) GetItemByID(c echo.Context) error {
 	item, err := controller.service.GetItemByID(ID)
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, util.NewInternalServerErrorResponse())
+		return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 	} else if item == nil {
-		return c.JSON(http.StatusNotFound, util.NewNotFoundResponse())
+		return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 	}
 
 	response := response.NewGetItemByIDResponse(*item)
@@ -47,7 +47,7 @@ func (controller *Controller) FindItemByTag(c echo.Context) error {
 	items, err := controller.service.GetItemsByTag(tag)
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, util.NewInternalServerErrorResponse())
+		return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 	}
 
 	response := response.NewGetItemByTagResponse(items)
@@ -59,16 +59,16 @@ func (controller *Controller) CreateNewItem(c echo.Context) error {
 	createItemRequest := new(request.CreateItemRequest)
 
 	if err := c.Bind(createItemRequest); err != nil {
-		return c.JSON(http.StatusBadRequest, util.NewBadRequestResponse())
+		return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 	}
 
 	ID, err := controller.service.CreateItem(*createItemRequest.ToUpsertItemSpec(), "creator")
 
 	if err != nil {
 		if err == business.ErrInvalidSpec {
-			return c.JSON(http.StatusBadRequest, util.NewBadRequestResponse())
+			return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 		}
-		return c.JSON(http.StatusInternalServerError, util.NewInternalServerErrorResponse())
+		return c.JSON(http.StatusInternalServerError, common.NewInternalServerErrorResponse())
 	}
 
 	response := response.NewCreateNewItemResponse(ID)
@@ -80,12 +80,12 @@ func (controller *Controller) UpdateItem(c echo.Context) error {
 	updateItemRequest := new(request.UpdateItemRequest)
 
 	if err := c.Bind(updateItemRequest); err != nil {
-		return c.JSON(http.StatusBadRequest, util.NewBadRequestResponse())
+		return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 	}
 
 	err := controller.validator.Struct(updateItemRequest)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, util.NewBadRequestResponse())
+		return c.JSON(http.StatusBadRequest, common.NewBadRequestResponse())
 	}
 
 	err = controller.service.UpdateItem(
@@ -96,10 +96,10 @@ func (controller *Controller) UpdateItem(c echo.Context) error {
 
 	if err != nil {
 		if err == business.ErrNotFound {
-			return c.JSON(http.StatusNotFound, util.NewNotFoundResponse())
+			return c.JSON(http.StatusNotFound, common.NewNotFoundResponse())
 		}
 		if err == business.ErrHasBeenModified {
-			return c.JSON(http.StatusConflict, util.NewConflictResponse())
+			return c.JSON(http.StatusConflict, common.NewConflictResponse())
 		}
 	}
 

@@ -1,4 +1,4 @@
-package util
+package common
 
 //DefaultResponse default payload response
 type DefaultResponse struct {
