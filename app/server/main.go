@@ -18,9 +18,10 @@ import (
 )
 
 func main() {
+	//load config if available or set to default
 	config := config.GetConfig()
 
-	//load config if available or set to default
+	//initialize database connection based on given config
 	dbCon := util.NewDatabaseConnection(config)
 
 	//initiate item repository
