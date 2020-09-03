@@ -5,6 +5,8 @@ import (
 	"sample-order/core/item"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson/primitive"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -15,20 +17,21 @@ type MongoDBRepository struct {
 }
 
 type collection struct {
-	ID          string    `bson:"_id"`
-	Name        string    `bson:"name"`
-	Description string    `bson:"description"`
-	Tags        []string  `bson:"tags"`
-	CreatedAt   time.Time `bson:"created_at"`
-	CreatedBy   string    `bson:"created_by"`
-	ModifiedAt  time.Time `bson:"modified_at"`
-	ModifiedBy  string    `bson:"modified_by"`
-	Version     int       `bson:"version"`
+	ID          primitive.ObjectID `bson:"_id"`
+	Name        string             `bson:"name"`
+	Description string             `bson:"description"`
+	Tags        []string           `bson:"tags"`
+	CreatedAt   time.Time          `bson:"created_at"`
+	CreatedBy   string             `bson:"created_by"`
+	ModifiedAt  time.Time          `bson:"modified_at"`
+	ModifiedBy  string             `bson:"modified_by"`
+	Version     int                `bson:"version"`
 }
 
 func newCollection(item item.Item) *collection {
+	objectID, _ := primitive.ObjectIDFromHex(item.ID)
 	return &collection{
-		item.ID,
+		objectID,
 		item.Name,
 		item.Description,
 		item.Tags,
@@ -42,7 +45,7 @@ func newCollection(item item.Item) *collection {
 
 func (col *collection) ToItem() item.Item {
 	var item item.Item
-	item.ID = col.ID
+	item.ID = col.ID.Hex()
 	item.Name = col.Name
 	item.Description = col.Description
 	item.Tags = col.Tags
@@ -66,8 +69,10 @@ func NewMongoDBRepository(db *mongo.Database) *MongoDBRepository {
 func (repo *MongoDBRepository) FindItemByID(ID string) (*item.Item, error) {
 	var col collection
 
+	objectID, _ := primitive.ObjectIDFromHex(ID)
+
 	filter := bson.M{
-		"_id": ID,
+		"_id": objectID,
 	}
 
 	if err := repo.col.FindOne(context.TODO(), filter).Decode(&col); err != nil {
