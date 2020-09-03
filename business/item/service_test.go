@@ -57,6 +57,28 @@ func TestGetItemByTags(t *testing.T) {
 
 func TestCreateItem(t *testing.T) {
 	id, _ := service.CreateItem(insertSpec, creator)
+
+	for _, tag := range insertSpec.Tags {
+		items, _ := service.GetItemsByTag(tag)
+
+		if len(items) == 0 {
+			t.Error("Expect at least one item when search by given tag: ", tag)
+			continue
+		}
+
+		isFound := false
+		for _, item := range items {
+			if item.ID == id {
+				isFound = true
+				break
+			}
+		}
+
+		if !isFound {
+			t.Error("Expect found inserted item when search by given tag: ", tag)
+		}
+	}
+
 	newItem, _ := service.GetItemByID(id)
 
 	if newItem == nil {
@@ -94,7 +116,60 @@ func TestCreateItem(t *testing.T) {
 }
 
 func TestUpdateItem(t *testing.T) {
-	service.UpdateItem(item2.ID, updateSpec, item2.Version, updater)
+	id := item2.ID
+	version := item2.Version
+	oldTags := item2.Tags
+
+	service.UpdateItem(id, updateSpec, version, updater)
+
+	//find the old tag that doesn't exist in new updated tags
+	var invalidateTags []string
+	for _, tag := range oldTags {
+		isExistOnUpdatedTag := false
+
+		for _, updatedTag := range updateSpec.Tags {
+			if tag == updatedTag {
+				isExistOnUpdatedTag = true
+				break
+			}
+		}
+
+		if !isExistOnUpdatedTag {
+			invalidateTags = append(invalidateTags, tag)
+		}
+	}
+
+	//verify the invalidated tag is not contain the item anymore
+	for _, invalidateTag := range invalidateTags {
+		tagItems, _ := service.GetItemsByTag(invalidateTag)
+		isFound := false
+
+		for _, tagItem := range tagItems {
+			if tagItem.ID == id {
+				isFound = true
+				break
+			}
+		}
+
+		if isFound {
+			t.Error("Expect not found when search by old invalidate tag: ", invalidateTag)
+		}
+	}
+
+	items, _ := service.GetItemsByTag(updateSpec.Tags[0])
+
+	isFound := false
+	for _, item := range items {
+		if item.ID == id {
+			isFound = true
+			break
+		}
+	}
+
+	if !isFound {
+		t.Error("Expect found inserted item when search by given tag: ", updateSpec.Tags[0])
+	}
+
 	updatedItem, _ := service.GetItemByID(item2.ID)
 
 	if updatedItem == nil {
@@ -163,7 +238,7 @@ func setup() {
 
 	updateSpec.Name = "Update Item"
 	updateSpec.Description = "Update Description"
-	updateSpec.Tags = []string{"tag999"}
+	updateSpec.Tags = []string{"tag99-updated"}
 
 	creator = "creator"
 	updater = "updater"
@@ -215,10 +290,43 @@ func (repo *inMemoryRepository) FindAllByTag(tag string) ([]item.Item, error) {
 
 func (repo *inMemoryRepository) InsertItem(item core.Item) error {
 	repo.itemByID[item.ID] = item
+
+	for _, tag := range item.Tags {
+		items := repo.itemByTag[tag]
+		repo.itemByTag[tag] = append(items, item)
+	}
 	return nil
 }
 
 func (repo *inMemoryRepository) UpdateItem(item core.Item, currentVersion int) error {
+	//cleanup old tag first
+	oldItem := repo.itemByID[item.ID]
+
+	//cleanup the old tags first
+	for _, tag := range oldItem.Tags {
+		tagItems, _ := repo.FindAllByTag(tag)
+
+		itemIndex := -1
+		for idx, tagItem := range tagItems {
+			if tagItem.ID == item.ID {
+				itemIndex = idx
+				break
+			}
+		}
+
+		if itemIndex != -1 {
+			tagItems = append(tagItems[:itemIndex], tagItems[itemIndex+1:]...)
+		}
+
+		repo.itemByTag[tag] = tagItems
+	}
+
 	repo.itemByID[item.ID] = item
+
+	//adding the new tag
+	for _, tag := range item.Tags {
+		items := repo.itemByTag[tag]
+		repo.itemByTag[tag] = append(items, item)
+	}
 	return nil
 }
