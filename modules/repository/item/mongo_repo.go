@@ -28,8 +28,13 @@ type collection struct {
 	Version     int                `bson:"version"`
 }
 
-func newCollection(item item.Item) *collection {
-	objectID, _ := primitive.ObjectIDFromHex(item.ID)
+func newCollection(item item.Item) (*collection, error) {
+	objectID, err := primitive.ObjectIDFromHex(item.ID)
+
+	if err != nil {
+		return nil, err
+	}
+
 	return &collection{
 		objectID,
 		item.Name,
@@ -40,7 +45,7 @@ func newCollection(item item.Item) *collection {
 		item.ModifiedAt,
 		item.ModifiedBy,
 		item.Version,
-	}
+	}, nil
 }
 
 func (col *collection) ToItem() item.Item {
@@ -69,7 +74,10 @@ func NewMongoDBRepository(db *mongo.Database) *MongoDBRepository {
 func (repo *MongoDBRepository) FindItemByID(ID string) (*item.Item, error) {
 	var col collection
 
-	objectID, _ := primitive.ObjectIDFromHex(ID)
+	objectID, err := primitive.ObjectIDFromHex(ID)
+	if err != nil {
+		return nil, err
+	}
 
 	filter := bson.M{
 		"_id": objectID,
@@ -118,8 +126,13 @@ func (repo *MongoDBRepository) FindAllByTag(tag string) ([]item.Item, error) {
 
 //InsertItem Insert new item into database. Its return item id if success
 func (repo *MongoDBRepository) InsertItem(item item.Item) error {
-	col := newCollection(item)
-	_, err := repo.col.InsertOne(context.TODO(), col)
+	col, err := newCollection(item)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = repo.col.InsertOne(context.TODO(), col)
 
 	if err != nil {
 		return err
@@ -130,7 +143,11 @@ func (repo *MongoDBRepository) InsertItem(item item.Item) error {
 
 //UpdateItem Update existing item in database
 func (repo *MongoDBRepository) UpdateItem(item item.Item, currentVersion int) error {
-	col := newCollection(item)
+	col, err := newCollection(item)
+
+	if err != nil {
+		return err
+	}
 
 	filter := bson.M{
 		"_id":     col.ID,
@@ -141,7 +158,7 @@ func (repo *MongoDBRepository) UpdateItem(item item.Item, currentVersion int) er
 		"$set": col,
 	}
 
-	_, err := repo.col.UpdateOne(context.TODO(), filter, updated)
+	_, err = repo.col.UpdateOne(context.TODO(), filter, updated)
 	if err != nil {
 		return err
 	}
