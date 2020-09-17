@@ -76,7 +76,8 @@ func (repo *MongoDBRepository) FindItemByID(ID string) (*item.Item, error) {
 
 	objectID, err := primitive.ObjectIDFromHex(ID)
 	if err != nil {
-		return nil, err
+		//if cannot be convert means that ID will be never found
+		return nil, nil
 	}
 
 	filter := bson.M{
