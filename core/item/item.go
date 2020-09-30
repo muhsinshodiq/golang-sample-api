@@ -39,9 +39,7 @@ func NewItem(
 }
 
 //ModifyItem update existing item data
-func (oldItem *Item) ModifyItem(newName string, newDescription string, newTags []string, updater string) Item {
-	timeNow := time.Now()
-
+func (oldItem *Item) ModifyItem(newName string, newDescription string, newTags []string, updater string, modifiedAt time.Time) Item {
 	return Item{
 		ID:          oldItem.ID,
 		Name:        newName,
@@ -49,7 +47,7 @@ func (oldItem *Item) ModifyItem(newName string, newDescription string, newTags [
 		Tags:        newTags,
 		CreatedAt:   oldItem.CreatedAt,
 		CreatedBy:   oldItem.CreatedBy,
-		ModifiedAt:  timeNow,
+		ModifiedAt:  modifiedAt,
 		ModifiedBy:  updater,
 		Version:     oldItem.Version + 1,
 	}

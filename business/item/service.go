@@ -5,6 +5,7 @@ import (
 	"sample-order/business/item/spec"
 	core "sample-order/core/item"
 	"sample-order/util"
+	"time"
 
 	validator "github.com/go-playground/validator/v10"
 )
@@ -96,7 +97,7 @@ func (s *service) UpdateItem(ID string, upsertitemSpec spec.UpsertItemSpec, curr
 		return business.ErrHasBeenModified
 	}
 
-	newItem := item.ModifyItem(upsertitemSpec.Name, upsertitemSpec.Description, upsertitemSpec.Tags, modifiedBy)
+	newItem := item.ModifyItem(upsertitemSpec.Name, upsertitemSpec.Description, upsertitemSpec.Tags, modifiedBy, time.Now())
 
 	return s.repository.UpdateItem(newItem, currentVersion)
 }
