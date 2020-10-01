@@ -21,18 +21,17 @@ func NewItem(
 	name string,
 	description string,
 	tags []string,
-	creator string) Item {
-
-	timeNow := time.Now()
+	creator string,
+	createdAt time.Time) Item {
 
 	return Item{
 		ID:          id,
 		Name:        name,
 		Description: description,
 		Tags:        tags,
-		CreatedAt:   timeNow,
+		CreatedAt:   createdAt,
 		CreatedBy:   creator,
-		ModifiedAt:  timeNow,
+		ModifiedAt:  createdAt,
 		ModifiedBy:  creator,
 		Version:     1,
 	}

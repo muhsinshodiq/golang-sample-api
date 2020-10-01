@@ -67,6 +67,7 @@ func (s *service) CreateItem(upsertitemSpec spec.UpsertItemSpec, createdBy strin
 		upsertitemSpec.Description,
 		upsertitemSpec.Tags,
 		createdBy,
+		time.Now(),
 	)
 
 	err = s.repository.InsertItem(item)
