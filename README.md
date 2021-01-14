@@ -1,19 +1,21 @@
 # Sample Golang API Server
+
 Sample REST API build using echo server.
 
 The code implementation was inspired by port and adapter pattern or known as [hexagonal](blog.octo.com/en/hexagonal-architecture-three-principles-and-an-implementation-example):
-- **Business**<br/>Contains all the logic in domain business. Also called this as a service. All the interface of all the repository needed and the service itself will be put here.
-- **Core**<br/>Contains model/entity and all pure function helper relate to this will
-- **Modules**<br/>Contains implementation of interfaces that defined at the business (also called as adapters in hexagonal's term) and also http handler (controller).
+
+-   **Business**<br/>Contains all the logic in domain business. Also called this as a service. All the interface of repository needed and the implementation of the service itself will be put here.
+-   **Modules**<br/>Contains implementation of interfaces that defined at the business (also called as adapters in hexagonal's term) and also http handler (controller).
 
 # Data initialization
 
 To describe about how port and adapter interaction (separation concerned), this example will have two databases supported. There are MySQL and MongoDB.
 
-MongoDB will become a default databaese in this example. If you want to change into MySQL, update the configuration inside 
+MongoDB will become a default databaese in this example. If you want to change into MySQL, update the configuration inside
 [config.yaml](https://raw.githubusercontent.com/muhsinshodiq/golang-sample-api/master/config/config.yaml) file.
 
 ### MongoDB
+
 Please execute script below to create a new collection called `items` including the index needed
 
 ```mongodb
@@ -23,7 +25,9 @@ db.items.createIndex({"modified_at": 1, "_id": 1});
 ```
 
 ### MySQL
+
 Please execute script below to create `item` and `item_tag` table in your database
+
 ```sql
 CREATE TABLE `item` (
   `id` varchar(24) NOT NULL DEFAULT '',
@@ -48,16 +52,20 @@ CREATE TABLE `item_tag` (
 ```
 
 # How To Run Server
+
 Just execute code below in your console
+
 ```console
 ./run.sh
 ```
 
 # How To Consume The API
+
 There are 4 availables API that ready to use:
-- GET `/v1/items/:id`
-- GET `/v1/items/[tag-name]`
-- POST `/v1/items`
-- PUT `/v1/items`
+
+-   GET `/v1/items/:id`
+-   GET `/v1/items/[tag-name]`
+-   POST `/v1/items`
+-   PUT `/v1/items`
 
 To make it easier please download [Insomnia Core](https://insomnia.rest) app and import [this collection](https://raw.githubusercontent.com/muhsinshodiq/golang-sample-api/master/insomnia.json).
