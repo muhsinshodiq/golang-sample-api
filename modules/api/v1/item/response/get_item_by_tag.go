@@ -1,6 +1,6 @@
 package response
 
-import "sample-order/core/item"
+import "sample-order/business/item"
 
 //GetItemByTagResponse Get item by tag response payload
 type GetItemByTagResponse struct {

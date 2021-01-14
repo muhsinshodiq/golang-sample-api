@@ -1,7 +1,7 @@
 package response
 
 import (
-	"sample-order/core/item"
+	"sample-order/business/item"
 	"time"
 )
 

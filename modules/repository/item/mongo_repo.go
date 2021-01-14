@@ -2,7 +2,7 @@ package item
 
 import (
 	"context"
-	"sample-order/core/item"
+	"sample-order/business/item"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"

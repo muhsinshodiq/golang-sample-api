@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"sample-order/business"
-	core "sample-order/core/item"
+	"sample-order/business/item"
 )
 
 //MySQLRepository The implementation of item.Repository object
@@ -21,8 +21,8 @@ func NewMySQLRepository(db *sql.DB) *MySQLRepository {
 }
 
 //FindItemByID Find item based on given ID. Its return nil if not found
-func (repo *MySQLRepository) FindItemByID(ID string) (*core.Item, error) {
-	var item core.Item
+func (repo *MySQLRepository) FindItemByID(ID string) (*item.Item, error) {
+	var item item.Item
 
 	selectQuery := `SELECT id, name, description, created_at, created_by, modified_at, modified_by, version, COALESCE(tags, "")
 		FROM item i
@@ -56,7 +56,7 @@ func (repo *MySQLRepository) FindItemByID(ID string) (*core.Item, error) {
 }
 
 //FindAllByTag Find all items based on given tag. Its return empty array if not found
-func (repo *MySQLRepository) FindAllByTag(tag string) ([]core.Item, error) {
+func (repo *MySQLRepository) FindAllByTag(tag string) ([]item.Item, error) {
 	//TODO: if feel have a performance issue in tag grouping, move the logic from db to here
 	selectQuery := `SELECT id, name, description, created_at, created_by, modified_at, modified_by, version, COALESCE(tags, "")
 		FROM item i
@@ -78,10 +78,10 @@ func (repo *MySQLRepository) FindAllByTag(tag string) ([]core.Item, error) {
 
 	defer row.Close()
 
-	var items []core.Item
+	var items []item.Item
 
 	for row.Next() {
-		var item core.Item
+		var item item.Item
 		var tags string
 
 		err := row.Scan(
@@ -106,7 +106,7 @@ func (repo *MySQLRepository) FindAllByTag(tag string) ([]core.Item, error) {
 }
 
 //InsertItem Insert new item into database. Its return item id if success
-func (repo *MySQLRepository) InsertItem(item core.Item) error {
+func (repo *MySQLRepository) InsertItem(item item.Item) error {
 	tx, err := repo.db.Begin()
 	if err != nil {
 		return err
@@ -164,7 +164,7 @@ func (repo *MySQLRepository) InsertItem(item core.Item) error {
 }
 
 //UpdateItem Update existing item in database
-func (repo *MySQLRepository) UpdateItem(item core.Item, currentVersion int) error {
+func (repo *MySQLRepository) UpdateItem(item item.Item, currentVersion int) error {
 	tx, err := repo.db.Begin()
 	if err != nil {
 		return err

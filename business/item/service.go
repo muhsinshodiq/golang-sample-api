@@ -3,18 +3,32 @@ package item
 import (
 	"sample-order/business"
 	"sample-order/business/item/spec"
-	core "sample-order/core/item"
 	"sample-order/util"
 	"time"
 
 	validator "github.com/go-playground/validator/v10"
 )
 
+//Repository ingoing port for item
+type Repository interface {
+	//FindItemByID If data not found will return nil without error
+	FindItemByID(ID string) (*Item, error)
+
+	//FindAllByTag If no data match with the given tag, will return empty slice instead of nil
+	FindAllByTag(tag string) ([]Item, error)
+
+	//InsertItem Insert new item into storage
+	InsertItem(item Item) error
+
+	//UpdateItem if data not found will return core.ErrZeroAffected
+	UpdateItem(item Item, currentVersion int) error
+}
+
 //Service outgoing port for item
 type Service interface {
-	GetItemByID(ID string) (*core.Item, error)
+	GetItemByID(ID string) (*Item, error)
 
-	GetItemsByTag(tag string) ([]core.Item, error)
+	GetItemsByTag(tag string) ([]Item, error)
 
 	CreateItem(upsertitemSpec spec.UpsertItemSpec, createdBy string) (string, error)
 
@@ -37,16 +51,16 @@ func NewService(repository Repository) Service {
 }
 
 //GetItemByID Get item by given ID, return nil if not exist
-func (s *service) GetItemByID(ID string) (*core.Item, error) {
+func (s *service) GetItemByID(ID string) (*Item, error) {
 	return s.repository.FindItemByID(ID)
 }
 
 //GetItemsByTag Get all items by given tag, return zero array if not match
-func (s *service) GetItemsByTag(tag string) ([]core.Item, error) {
+func (s *service) GetItemsByTag(tag string) ([]Item, error) {
 
 	items, err := s.repository.FindAllByTag(tag)
 	if err != nil || items == nil {
-		return []core.Item{}, err
+		return []Item{}, err
 	}
 
 	return items, err
@@ -61,7 +75,7 @@ func (s *service) CreateItem(upsertitemSpec spec.UpsertItemSpec, createdBy strin
 	}
 
 	ID := util.GenerateID()
-	item := core.NewItem(
+	item := NewItem(
 		ID,
 		upsertitemSpec.Name,
 		upsertitemSpec.Description,
