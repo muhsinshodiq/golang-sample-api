@@ -1,7 +1,7 @@
 package http
 
 import (
-	"sample-order/modules/api/v1/item"
+	"sample-order/api/v1/item"
 
 	"github.com/labstack/echo"
 )
